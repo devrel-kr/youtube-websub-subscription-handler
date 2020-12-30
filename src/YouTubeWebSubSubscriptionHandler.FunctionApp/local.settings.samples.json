@@ -1,0 +1,13 @@
+{
+  "IsEncrypted": false,
+  "Values": {
+    "AzureWebJobsStorage": "UseDevelopmentStorage=true",
+    "FUNCTIONS_WORKER_RUNTIME": "dotnet",
+
+    "WebSub__SubscriptionUri": "https://pubsubhubbub.appspot.com/subscribe",
+    "WebSub__CallbackUri": "https://<FUNCTION_INSTANCE>.azurewebsites.net/api/callback",
+
+    "EventGrid__Topic__Endpoint": "https://<EVENTGRID_INSTANCE>.<LOCATION>-1.eventgrid.azure.net/api/events",
+    "EventGrid__Topic__AccessKey": "<EVENTGRID_ACCESS_KEY>"
+  }
+}
