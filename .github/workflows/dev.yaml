@@ -119,7 +119,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
-          az functionapp config appsettings set \
+          settings=$(az functionapp config appsettings set \
             -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
             -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} \
             --settings WebSub__CallbackKey=$(az functionapp function keys list \
@@ -127,7 +127,7 @@ jobs:
               -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} \
               --function-name ${{ secrets.RESOURCE_FUNCTION_NAME_CALLBACK }} \
               --query "default" \
-              -o tsv)
+              -o tsv))
 
     - name: Run Bicep build
       uses: aliencube/bicep-build-actions@v0.1
