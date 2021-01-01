@@ -6,6 +6,7 @@
 
     "WebSub__SubscriptionUri": "https://pubsubhubbub.appspot.com/subscribe",
     "WebSub__CallbackUri": "https://<FUNCTION_INSTANCE>.azurewebsites.net/api/callback",
+    "WebSub__CallbackKey": "<FUNCTION_ACCESS_KEY>",
 
     "EventGrid__Topic__Endpoint": "https://<EVENTGRID_INSTANCE>.<LOCATION>-1.eventgrid.azure.net/api/events",
     "EventGrid__Topic__AccessKey": "<EVENTGRID_ACCESS_KEY>"

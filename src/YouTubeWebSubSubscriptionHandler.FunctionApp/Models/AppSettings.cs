@@ -32,6 +32,11 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Models
         /// Gets the URI for callback.
         /// </summary>
         public virtual string CallbackUri { get; } = Environment.GetEnvironmentVariable("WebSub__CallbackUri");
+
+        /// <summary>
+        /// Gets the API key for callback.
+        /// </summary>
+        public virtual string CallbackKey { get; } = Environment.GetEnvironmentVariable("WebSub__CallbackKey");
     }
 
     /// <summary>

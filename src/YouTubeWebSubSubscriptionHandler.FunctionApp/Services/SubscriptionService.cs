@@ -35,7 +35,7 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Services
             var requestUri = new Uri(this._settings.WebSub.SubscriptionUri);
             var values = new Dictionary<string, string>()
             {
-                { SubscriptionKeys.HubCallback, this._settings.WebSub.CallbackUri },
+                { SubscriptionKeys.HubCallback, $"{this._settings.WebSub.CallbackUri}?code={this._settings.WebSub.CallbackKey}" },
                 { SubscriptionKeys.HubTopic, req.TopicUri },
                 { SubscriptionKeys.HubVerify, SubscriptionVerificationType.Asynchronous.ToValueString() },
                 { SubscriptionKeys.HubMode, req.Mode.ToValueString() },
