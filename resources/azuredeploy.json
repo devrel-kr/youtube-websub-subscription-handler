@@ -73,7 +73,7 @@
   "functions": [],
   "variables": {
     "metadata": {
-      "longName": "[format('{{0}}-{0}{{1}}-{1}-{2}', parameters('name'), parameters('env'), parameters('locationCode'))]",
+      "longName": "[format('{{0}}-{0}-{1}-{2}{{1}}', parameters('name'), parameters('env'), parameters('locationCode'))]",
       "shortName": "[format('{{0}}{0}{1}{2}', parameters('name'), parameters('env'), parameters('locationCode'))]"
     },
     "storage": {

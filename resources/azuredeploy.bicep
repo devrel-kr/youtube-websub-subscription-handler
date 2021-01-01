@@ -55,7 +55,7 @@ param websubSubscriptionUri string = 'https://pubsubhubbub.appspot.com/subscribe
 param websubCallbackEndpoint string = 'api/callback'
 
 var metadata = {
-    longName: '{0}-${name}{1}-${env}-${locationCode}'
+    longName: '{0}-${name}-${env}-${locationCode}{1}'
     shortName: '{0}${name}${env}${locationCode}'
 }
 
