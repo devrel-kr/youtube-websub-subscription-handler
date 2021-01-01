@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Models
 {
@@ -16,6 +17,11 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Models
         /// Gets the <see cref="EventGridSettings"/> instance.
         /// </summary>
         public virtual EventGridSettings EventGrid { get; } = new EventGridSettings();
+
+        /// <summary>
+        /// Gets the <see cref="YouTubeSettings"/> instance.
+        /// </summary>
+        public virtual YouTubeSettings YouTube { get; } = new YouTubeSettings();
     }
 
     /// <summary>
@@ -64,5 +70,21 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Models
         /// Gets the access key to EventGrid Topic.
         /// </summary>
         public virtual string AccessKey { get; } = Environment.GetEnvironmentVariable("EventGrid__Topic__AccessKey");
+    }
+
+    /// <summary>
+    /// This represents the app settings entity for YouTube API.
+    /// </summary>
+    public class YouTubeSettings
+    {
+        /// <summary>
+        /// Gets the API key.
+        /// </summary>
+        public virtual string ApiKey { get; } = Environment.GetEnvironmentVariable("YouTube__ApiKey");
+
+        /// <summary>
+        /// Gets the list of parts to fetch.
+        /// </summary>
+        public virtual IEnumerable<string> FetchParts { get; } = Environment.GetEnvironmentVariable("YouTube__FetchParts").Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries);
     }
 }

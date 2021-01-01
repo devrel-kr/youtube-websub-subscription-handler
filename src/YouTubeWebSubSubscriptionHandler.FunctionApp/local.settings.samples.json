@@ -9,6 +9,9 @@
     "WebSub__CallbackKey": "<FUNCTION_ACCESS_KEY>",
 
     "EventGrid__Topic__Endpoint": "https://<EVENTGRID_INSTANCE>.<LOCATION>-1.eventgrid.azure.net/api/events",
-    "EventGrid__Topic__AccessKey": "<EVENTGRID_ACCESS_KEY>"
+    "EventGrid__Topic__AccessKey": "<EVENTGRID_ACCESS_KEY>",
+
+    "YouTube__ApiKey": "<YOUTUBE_API_KEY>",
+    "YouTube__FetchParts": "contentDetails,fileDetails,id,liveStreamingDetails,localizations,player,processingDetails,recordingDetails,snippet,statistics,status,suggestions,topicDetails"
   }
 }

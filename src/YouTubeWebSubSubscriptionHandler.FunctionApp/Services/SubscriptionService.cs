@@ -13,20 +13,29 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Services
     /// <summary>
     /// This represents the service entity for the subscription requests.
     /// </summary>
+    /// <remarks>
+    /// <para>This class implementation has the following external references:</para>
+    /// <list>
+    /// <item>Docs: https://indieweb.org/How_to_publish_and_consume_WebSub</item>
+    /// <item>Docs: https://developers.google.com/youtube/v3/guides/push_notifications</item>
+    /// <item>Google PubSubHubbub: http://pubsubhubbub.appspot.com/</item>
+    /// <item>Google PubShbHubbub Subscribe: https://pubsubhubbub.appspot.com/subscribe</item>
+    /// </list>
+    /// </remarks>
     public class SubscriptionService : ISubscriptionService
     {
         private readonly AppSettings _settings;
-        private readonly HttpClient _httpClient;
+        private readonly HttpClient _http;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SubscriptionService" /> class.
         /// </summary>
         /// <param name="settings"><see cref="AppSettings" /> instance.</param>
-        /// <param name="httpClient"><see cref="HttpClient" /> instance.</param>
-        public SubscriptionService(AppSettings settings, HttpClient httpClient)
+        /// <param name="http"><see cref="HttpClient" /> instance.</param>
+        public SubscriptionService(AppSettings settings, HttpClient http)
         {
             this._settings = settings ?? throw new ArgumentNullException(nameof(settings));
-            this._httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            this._http = http ?? throw new ArgumentNullException(nameof(http));
         }
 
         /// <inheritdoc />
@@ -46,7 +55,7 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Services
 
             var result = default(SubscriptionResponse);
             using (var content = new FormUrlEncodedContent(values))
-            using (var response = await this._httpClient.PostAsync(requestUri, content).ConfigureAwait(false))
+            using (var response = await this._http.PostAsync(requestUri, content).ConfigureAwait(false))
             {
                 var headers = response.Headers.ToDictionary(p => p.Key, p => string.Join("|", p.Value));
 
