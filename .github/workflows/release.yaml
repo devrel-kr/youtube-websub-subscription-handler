@@ -183,7 +183,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.subscription.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
 
   functionapp_build_test_deploy_prod:
     name: 'PROD: FunctionApp Build, Test & Deploy'
@@ -278,4 +278,4 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.subscription.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_PROD }}

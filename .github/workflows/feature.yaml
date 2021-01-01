@@ -115,3 +115,17 @@ jobs:
               --function-name ${{ secrets.RESOURCE_FUNCTION_NAME_CALLBACK }} \
               --query "default" \
               -o tsv)
+
+    - name: Run Bicep build
+      uses: aliencube/bicep-build-actions@v0.1
+      with:
+        files: '**/*.bicep'
+
+    - name: Deploy ARM templates
+      uses: Azure/arm-deploy@v1.0.1
+      with:
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        deploymentName: 'ytwebsub'
+        template: 'resources/logappdeploy.subscription.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}

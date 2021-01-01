@@ -141,4 +141,4 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.subscription.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
