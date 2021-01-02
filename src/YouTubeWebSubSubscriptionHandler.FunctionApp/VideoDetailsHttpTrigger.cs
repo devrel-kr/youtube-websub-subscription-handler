@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 using Newtonsoft.Json;
 
-namespace YouTubeWebSubSubscriptionHandler.FunctionApp
+namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp
 {
     /// <summary>
     /// This represents the HTTP trigger entity to fetch YouTube video details.
