@@ -121,10 +121,10 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                     inputs: {
                         method: 'POST'
                         uri: 'https://@{parameters(\'functionAppName\')}.azurewebsites.net/api/subscribe'
-                        body: '@outputs(\'Build_Request_Payload\')'
                         headers: {
                             'x-functions-key': '@parameters(\'functionAppKey\')'
                         }
+                        body: '@outputs(\'Build_Request_Payload\')'
                     }
                 }
             }
