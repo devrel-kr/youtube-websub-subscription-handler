@@ -238,7 +238,7 @@ jobs:
         inlineScript: |
           az extension add -n eventgrid
           az extension add -n logic
-          sub=az eventgrid event-subscription create \
+          sub=$(az eventgrid event-subscription create \
             -n ${{ steps.eventgrid.outputs.name }}-sub \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
@@ -252,7 +252,7 @@ jobs:
                 -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
                 -n ${{ steps.logappEventGridSub.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
-              --query "value" -o tsv)
+              --query "value" -o tsv))
 
   functionapp_build_test_deploy_prod:
     name: 'PROD: FunctionApp Build, Test & Deploy'
@@ -378,7 +378,7 @@ jobs:
         inlineScript: |
           az extension add -n eventgrid
           az extension add -n logic
-          sub=az eventgrid event-subscription create \
+          sub=$(az eventgrid event-subscription create \
             -n ${{ steps.eventgrid.outputs.name }}-sub \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
@@ -392,4 +392,4 @@ jobs:
                 -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
                 -n ${{ steps.logappEventGridSub.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
-              --query "value" -o tsv)
+              --query "value" -o tsv))
