@@ -7,8 +7,6 @@ on:
 
 env:
   FUNCTIONAPP_PATH: 'src/YouTubeWebSubSubscriptionHandler.FunctionApp'
-  EVENTGRID_NAME_DEV: ''
-  EVENTGRID_NAME_PROD: ''
 
 jobs:
   arm_template_build_test_deploy_dev:
@@ -55,7 +53,13 @@ jobs:
     - name: Set EventGrid name
       shell: bash
       run: |
-        echo "EVENTGRID_NAME_DEV=${{ steps.arm.outputs.eventgridName }}" >> $GITHUB_ENV
+        echo ${{ steps.arm.outputs.eventgridName }} > eventgrid_name_dev.txt
+
+    - name: Upload EventGrid name
+      uses: actions/upload-artifact@v2
+      with:
+        name: eventgrid_name_dev
+        path: eventgrid_name_dev.txt
 
   arm_template_build_test_deploy_prod:
     name: 'PROD: ARM Templates Build, Test & Deploy'
@@ -103,7 +107,13 @@ jobs:
     - name: Set EventGrid name
       shell: bash
       run: |
-        echo "EVENTGRID_NAME_PROD=${{ steps.arm.outputs.eventgridName }}" >> $GITHUB_ENV
+        echo ${{ steps.arm.outputs.eventgridName }} > eventgrid_name_prod.txt
+
+    - name: Upload EventGrid name
+      uses: actions/upload-artifact@v2
+      with:
+        name: eventgrid_name_prod
+        path: eventgrid_name_prod.txt
 
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'
@@ -210,6 +220,18 @@ jobs:
         template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
 
+    - name: Download EventGrid name
+      uses: actions/download-artifact@v2
+      with:
+        name: eventgrid_name_dev
+
+    - name: Get EventGrid name
+      id: eventgrid
+      shell: bash
+      run: |
+        name=$(cat eventgrid_name_dev.txt)
+        echo "::set-output name=name::$name"
+
     - name: Provision EventGrid subscription
       uses: azure/CLI@v1
       with:
@@ -217,10 +239,10 @@ jobs:
           az extension add -n eventgrid
           az extension add -n logic
           sub=az eventgrid event-subscription create \
-            -n ${{ env.EVENTGRID_NAME_DEV }}-sub \
+            -n ${{ steps.eventgrid.outputs.name }}-sub \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
-              -n ${{ env.EVENTGRID_NAME_DEV }}-topic \
+              -n ${{ steps.eventgrid.outputs.name }}-topic \
               --query "id" -o tsv) \
             --event-delivery-schema cloudeventschemav1_0 \
             --endpoint-type webhook \
@@ -338,6 +360,18 @@ jobs:
         template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
 
+    - name: Download EventGrid name
+      uses: actions/download-artifact@v2
+      with:
+        name: eventgrid_name_prod
+
+    - name: Get EventGrid name
+      id: eventgrid
+      shell: bash
+      run: |
+        name=$(cat eventgrid_name_prod.txt)
+        echo "::set-output name=name::$name"
+
     - name: Provision EventGrid subscription
       uses: azure/CLI@v1
       with:
@@ -345,10 +379,10 @@ jobs:
           az extension add -n eventgrid
           az extension add -n logic
           sub=az eventgrid event-subscription create \
-            -n ${{ env.EVENTGRID_NAME_PROD }}-sub \
+            -n ${{ steps.eventgrid.outputs.name }}-sub \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
-              -n ${{ env.EVENTGRID_NAME_PROD }}-topic \
+              -n ${{ steps.eventgrid.outputs.name }}-topic \
               --query "id" -o tsv) \
             --event-delivery-schema cloudeventschemav1_0 \
             --endpoint-type webhook \
