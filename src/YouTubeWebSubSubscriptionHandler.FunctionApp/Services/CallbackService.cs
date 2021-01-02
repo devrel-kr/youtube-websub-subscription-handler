@@ -17,6 +17,15 @@ namespace DevRelKr.YouTubeWebSubSubscriptionHandler.FunctionApp.Services
     /// <summary>
     /// This represents the service entity for the subscription callbacks.
     /// </summary>
+    /// <remarks>
+    /// <para>This class implementation has the following external references:</para>
+    /// <list>
+    /// <item>Docs: https://indieweb.org/How_to_publish_and_consume_WebSub</item>
+    /// <item>Docs: https://developers.google.com/youtube/v3/guides/push_notifications</item>
+    /// <item>Google PubSubHubbub: http://pubsubhubbub.appspot.com/</item>
+    /// <item>Google PubShbHubbub Subscribe: https://pubsubhubbub.appspot.com/subscribe</item>
+    /// </list>
+    /// </remarks>
     public class CallbackService : ICallbackService
     {
         private readonly AppSettings _settings;
