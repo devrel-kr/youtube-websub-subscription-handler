@@ -161,6 +161,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
+          az extension add -n eventgrid
           az extension add -n logic
           sub=az eventgrid event-subscription create \
             -n ${{ env.EVENTGRID_NAME_DEV }}-sub \
