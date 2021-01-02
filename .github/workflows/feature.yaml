@@ -121,7 +121,7 @@ jobs:
       with:
         files: '**/*.bicep'
 
-    - name: Deploy ARM templates
+    - name: Deploy LogicApp for scheduled subscription to WebSub
       uses: Azure/arm-deploy@v1.0.1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
