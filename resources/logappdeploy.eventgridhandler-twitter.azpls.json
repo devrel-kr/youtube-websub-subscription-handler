@@ -33,12 +33,6 @@
     "functionName": {
       "type": "string",
       "defaultValue": "FetchAsync"
-    },
-    "twitterApiKey": {
-      "type": "secureString"
-    },
-    "twitterApiSecret": {
-      "type": "secureString"
     }
   },
   "functions": [],
@@ -51,9 +45,7 @@
       "id": "[format('{0}/providers/Microsoft.Web/locations/{1}/managedApis/twitter', subscription().id, parameters('location'))]",
       "connectionId": "[format('{0}/providers/Microsoft.Web/connections/{1}', resourceGroup().id, format(variables('metadata').longName, 'apicon', '-twitter-azpls'))]",
       "connectionName": "[format(variables('metadata').longName, 'apicon', '-twitter-azpls')]",
-      "location": "[parameters('location')]",
-      "apiKey": "[parameters('twitterApiKey')]",
-      "apiSecret": "[parameters('twitterApiSecret')]"
+      "location": "[parameters('location')]"
     },
     "logicApp": {
       "name": "[format(variables('metadata').longName, 'logapp', '-eventgrid-sub-handler-twitter')]",

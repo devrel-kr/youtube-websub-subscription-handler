@@ -24,14 +24,6 @@ param logicAppAcceptedTitleSegment string = '애저듣보잡'
 // Function App
 param functionName string = 'FetchAsync'
 
-// Twitter
-param twitterApiKey string {
-    secure: true
-}
-param twitterApiSecret string {
-    secure: true
-}
-
 var metadata = {
     longName: '{0}-${name}-${env}-${locationCode}{1}'
     shortName: '{0}${name}${env}${locationCode}'
@@ -42,8 +34,6 @@ var twitterConnector = {
     connectionId: '${resourceGroup().id}/providers/Microsoft.Web/connections/${format(metadata.longName, 'apicon', '-twitter-azpls')}'
     connectionName: format(metadata.longName, 'apicon', '-twitter-azpls')
     location: location
-    apiKey: twitterApiKey
-    apiSecret: twitterApiSecret
 }
 
 resource apiconTwitter 'Microsoft.Web/connections@2016-06-01' = {

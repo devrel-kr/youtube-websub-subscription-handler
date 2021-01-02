@@ -129,3 +129,12 @@ jobs:
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.subscription.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
+
+    - name: Deploy LogicApp as EventGrid subscription handler
+      uses: Azure/arm-deploy@v1.0.1
+      with:
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        deploymentName: 'ytwebsub'
+        template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
