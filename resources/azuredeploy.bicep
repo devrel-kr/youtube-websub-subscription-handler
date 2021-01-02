@@ -54,6 +54,12 @@ param functionAppTimezone string = 'Korea Standard Time'
 param websubSubscriptionUri string = 'https://pubsubhubbub.appspot.com/subscribe'
 param websubCallbackEndpoint string = 'api/callback'
 
+// YouTube
+param youtubeApiKey string {
+    secure: true
+}
+param youtubeFetchParts string = 'snippet'
+
 var metadata = {
     longName: '{0}-${name}-${env}-${locationCode}{1}'
     shortName: '{0}${name}${env}${locationCode}'
@@ -155,6 +161,8 @@ var functionApp = {
     environment: functionAppEnvironment
     runtime: functionAppWorkerRuntime
     timezone: functionAppTimezone
+    youtubeApiKey: youtubeApiKey
+    youtubeFetchParts: youtubeFetchParts
 }
 
 var websub = {
@@ -231,6 +239,14 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
                 {
                     name: 'EventGrid__Topic__AccessKey'
                     value: listKeys(evtgrdTopic.id, '2020-06-01').key1
+                }
+                {
+                    name: 'YouTube__ApiKey'
+                    value: functionApp.youtubeApiKey
+                }
+                {
+                    name: 'YouTube__FetchParts'
+                    value: functionApp.youtubeFetchParts
                 }
             ]
         }

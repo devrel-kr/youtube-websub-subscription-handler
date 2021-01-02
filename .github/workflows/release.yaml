@@ -47,7 +47,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'dvrl.kr'
         template: 'resources/azuredeploy.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} youtubeApiKey=${{ secrets.YOUTUBE_API_KEY_DEV }} youtubeFetchParts=${{ secrets.YOUTUBE_API_FETCH_PARTS }}
 
   arm_template_build_test_deploy_prod:
     name: 'PROD: ARM Templates Build, Test & Deploy'
@@ -89,7 +89,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'dvrl.kr'
         template: 'resources/azuredeploy.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_PROD }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_PROD }} youtubeApiKey=${{ secrets.YOUTUBE_API_KEY_PROD }} youtubeFetchParts=${{ secrets.YOUTUBE_API_FETCH_PARTS }}
 
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'

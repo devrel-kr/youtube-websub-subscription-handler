@@ -47,7 +47,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/azuredeploy.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} youtubeApiKey=${{ secrets.YOUTUBE_API_KEY_DEV }} youtubeFetchParts=${{ secrets.YOUTUBE_API_FETCH_PARTS }}
 
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'
@@ -115,30 +115,30 @@ jobs:
         appName: ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }}
         reset: true
 
-    # - name: Update FunctionApp settings
-    #   uses: azure/CLI@v1
-    #   with:
-    #     inlineScript: |
-    #       settings=$(az functionapp config appsettings set \
-    #         -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
-    #         -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} \
-    #         --settings WebSub__CallbackKey=$(az functionapp function keys list \
-    #           -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
-    #           -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} \
-    #           --function-name ${{ secrets.RESOURCE_FUNCTION_NAME_CALLBACK }} \
-    #           --query "default" \
-    #           -o tsv))
+    - name: Update FunctionApp settings
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          settings=$(az functionapp config appsettings set \
+            -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+            -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} \
+            --settings WebSub__CallbackKey=$(az functionapp function keys list \
+              -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+              -n ${{ secrets.RESOURCE_FUNCTIONAPP_NAME_DEV }} \
+              --function-name ${{ secrets.RESOURCE_FUNCTION_NAME_CALLBACK }} \
+              --query "default" \
+              -o tsv))
 
-    # - name: Run Bicep build
-    #   uses: aliencube/bicep-build-actions@v0.1
-    #   with:
-    #     files: '**/*.bicep'
+    - name: Run Bicep build
+      uses: aliencube/bicep-build-actions@v0.1
+      with:
+        files: '**/*.bicep'
 
-    # - name: Deploy LogicApp for scheduled subscription to WebSub
-    #   uses: Azure/arm-deploy@v1.0.1
-    #   with:
-    #     subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
-    #     resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
-    #     deploymentName: 'ytwebsub'
-    #     template: 'resources/logappdeploy.subscription.json'
-    #     parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
+    - name: Deploy LogicApp for scheduled subscription to WebSub
+      uses: Azure/arm-deploy@v1.0.1
+      with:
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        deploymentName: 'ytwebsub'
+        template: 'resources/logappdeploy.subscription.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}

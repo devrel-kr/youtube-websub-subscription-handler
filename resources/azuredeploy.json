@@ -68,6 +68,13 @@
     "websubCallbackEndpoint": {
       "type": "string",
       "defaultValue": "api/callback"
+    },
+    "youtubeApiKey": {
+      "type": "secureString"
+    },
+    "youtubeFetchParts": {
+      "type": "string",
+      "defaultValue": "snippet"
     }
   },
   "functions": [],
@@ -104,7 +111,9 @@
       "location": "[parameters('location')]",
       "environment": "[parameters('functionAppEnvironment')]",
       "runtime": "[parameters('functionAppWorkerRuntime')]",
-      "timezone": "[parameters('functionAppTimezone')]"
+      "timezone": "[parameters('functionAppTimezone')]",
+      "youtubeApiKey": "[parameters('youtubeApiKey')]",
+      "youtubeFetchParts": "[parameters('youtubeFetchParts')]"
     },
     "websub": {
       "subscriptionUri": "[parameters('websubSubscriptionUri')]",
@@ -249,6 +258,14 @@
             {
               "name": "EventGrid__Topic__AccessKey",
               "value": "[listKeys(resourceId('Microsoft.EventGrid/topics', variables('eventgrid').name), '2020-06-01').key1]"
+            },
+            {
+              "name": "YouTube__ApiKey",
+              "value": "[variables('functionApp').youtubeApiKey]"
+            },
+            {
+              "name": "YouTube__FetchParts",
+              "value": "[variables('functionApp').youtubeFetchParts]"
             }
           ]
         }
