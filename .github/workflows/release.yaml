@@ -214,6 +214,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
+          az extension add -n logic
           sub=az eventgrid event-subscription create \
             -n ${{ env.EVENTGRID_NAME_DEV }}-sub \
             --source-resource-id $(az eventgrid topic show \
@@ -340,6 +341,7 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
+          az extension add -n logic
           sub=az eventgrid event-subscription create \
             -n ${{ env.EVENTGRID_NAME_PROD }}-sub \
             --source-resource-id $(az eventgrid topic show \
