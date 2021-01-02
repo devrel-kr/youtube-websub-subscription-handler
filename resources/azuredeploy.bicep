@@ -144,6 +144,9 @@ resource csplan 'Microsoft.Web/serverfarms@2020-06-01' = {
         name: 'Y1'
         tier: 'Dynamic'
     }
+    properties: {
+        reserved: true
+    }
 }
 
 var functionApp = {
