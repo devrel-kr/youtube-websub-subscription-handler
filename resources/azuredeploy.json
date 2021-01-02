@@ -177,9 +177,6 @@
       "sku": {
         "name": "Y1",
         "tier": "Dynamic"
-      },
-      "properties": {
-        "reserved": true
       }
     },
     {
