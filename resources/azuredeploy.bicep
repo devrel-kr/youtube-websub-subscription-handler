@@ -252,3 +252,5 @@ resource fncapp 'Microsoft.Web/sites@2020-06-01' = {
         }
     }
 }
+
+output eventgridName string = format(metadata.longName, 'evtgrd', '')

@@ -280,5 +280,11 @@
         "[resourceId('Microsoft.Web/connections', variables('twitterConnector').connectionName)]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "logicAppName": {
+      "type": "string",
+      "value": "[variables('logicApp').name]"
+    }
+  }
 }

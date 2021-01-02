@@ -132,3 +132,5 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
         }
     }
 }
+
+output logicAppName string = logapp.name

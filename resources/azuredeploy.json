@@ -277,5 +277,11 @@
         "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
       ]
     }
-  ]
+  ],
+  "outputs": {
+    "eventgridName": {
+      "type": "string",
+      "value": "[format(variables('metadata').longName, 'evtgrd', '')]"
+    }
+  }
 }

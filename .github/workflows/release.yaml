@@ -7,6 +7,8 @@ on:
 
 env:
   FUNCTIONAPP_PATH: 'src/YouTubeWebSubSubscriptionHandler.FunctionApp'
+  EVENTGRID_NAME_DEV: ''
+  EVENTGRID_NAME_PROD: ''
 
 jobs:
   arm_template_build_test_deploy_dev:
@@ -41,13 +43,19 @@ jobs:
         echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
 
     - name: Deploy ARM templates
-      uses: Azure/arm-deploy@v1.0.1
+      id: arm
+      uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'dvrl.kr'
         template: 'resources/azuredeploy.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_DEV }} youtubeApiKey=${{ secrets.YOUTUBE_API_KEY_DEV }} youtubeFetchParts=${{ secrets.YOUTUBE_API_FETCH_PARTS }}
+
+    - name: Set EventGrid name
+      shell: bash
+      run: |
+        echo "EVENTGRID_NAME_DEV=${{ steps.arm.outputs.eventgridName }}" >> $GITHUB_ENV
 
   arm_template_build_test_deploy_prod:
     name: 'PROD: ARM Templates Build, Test & Deploy'
@@ -83,13 +91,19 @@ jobs:
         echo 'Results: ${{ toJSON(fromJSON(steps.armtest.outputs.results)) }}'
 
     - name: Deploy ARM templates
-      uses: Azure/arm-deploy@v1.0.1
+      id: arm
+      uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_PROD }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'dvrl.kr'
         template: 'resources/azuredeploy.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} functionAppEnvironment=${{ secrets.RESOURCE_FUNCTIONAPP_ENVIRONMENT_PROD }} youtubeApiKey=${{ secrets.YOUTUBE_API_KEY_PROD }} youtubeFetchParts=${{ secrets.YOUTUBE_API_FETCH_PARTS }}
+
+    - name: Set EventGrid name
+      shell: bash
+      run: |
+        echo "EVENTGRID_NAME_PROD=${{ steps.arm.outputs.eventgridName }}" >> $GITHUB_ENV
 
   functionapp_build_test_deploy_dev:
     name: 'DEV: FunctionApp Build, Test & Deploy'
@@ -177,7 +191,8 @@ jobs:
         files: '**/*.bicep'
 
     - name: Deploy LogicApp for scheduled subscription to WebSub
-      uses: Azure/arm-deploy@v1.0.1
+      id: logappWebSub
+      uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
@@ -186,13 +201,34 @@ jobs:
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
 
     - name: Deploy LogicApp as EventGrid subscription handler
-      uses: Azure/arm-deploy@v1.0.1
+      id: logappEventGridSub
+      uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
+
+    - name: Provision EventGrid subscription
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          sub=az eventgrid event-subscription create \
+            -n ${{ env.EVENTGRID_NAME_DEV }}-sub \
+            --source-resource-id $(az eventgrid topic show \
+              -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+              -n ${{ env.EVENTGRID_NAME_DEV }}-topic \
+              --query "id" -o tsv) \
+            --event-delivery-schema cloudeventschemav1_0 \
+            --endpoint-type webhook \
+            --endpoint $(az rest \
+              -m POST \
+              -u "https://management.azure.com$(az logic workflow show \
+                -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+                -n ${{ steps.logappEventGridSub.outputs.logicAppName }} \
+                --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
+              --query "value" -o tsv)
 
   functionapp_build_test_deploy_prod:
     name: 'PROD: FunctionApp Build, Test & Deploy'
@@ -281,7 +317,8 @@ jobs:
         files: '**/*.bicep'
 
     - name: Deploy LogicApp for scheduled subscription to WebSub
-      uses: Azure/arm-deploy@v1.0.1
+      id: logappWebSub
+      uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_PROD }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
@@ -290,10 +327,31 @@ jobs:
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_PROD }}
 
     - name: Deploy LogicApp as EventGrid subscription handler
-      uses: Azure/arm-deploy@v1.0.1
+      id: logappEventGridSub
+      uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_PROD }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
+
+    - name: Provision EventGrid subscription
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          sub=az eventgrid event-subscription create \
+            -n ${{ env.EVENTGRID_NAME_PROD }}-sub \
+            --source-resource-id $(az eventgrid topic show \
+              -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
+              -n ${{ env.EVENTGRID_NAME_PROD }}-topic \
+              --query "id" -o tsv) \
+            --event-delivery-schema cloudeventschemav1_0 \
+            --endpoint-type webhook \
+            --endpoint $(az rest \
+              -m POST \
+              -u "https://management.azure.com$(az logic workflow show \
+                -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
+                -n ${{ steps.logappEventGridSub.outputs.logicAppName }} \
+                --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
+              --query "value" -o tsv)
