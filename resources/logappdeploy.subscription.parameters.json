@@ -1,0 +1,12 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "value": "<RESOURCE_NAME>"
+    },
+    "logicAppSubscriptionTopicUri": {
+      "value": "https://www.youtube.com/xml/feeds/videos.xml?channel_id=<CHANNEL_ID>"
+    }
+  }
+}

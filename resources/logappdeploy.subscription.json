@@ -1,0 +1,156 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "test",
+        "prod"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "locationCode": {
+      "type": "string",
+      "defaultValue": "krc"
+    },
+    "logicAppTimezone": {
+      "type": "string",
+      "defaultValue": "Korea Standard Time"
+    },
+    "logicAppSubscriptionTopicUri": {
+      "type": "string"
+    },
+    "logicAppSubscriptionMode": {
+      "type": "string",
+      "defaultValue": "subscribe",
+      "allowedValues": [
+        "subscribe",
+        "unsubscribe"
+      ]
+    },
+    "functionName": {
+      "type": "string",
+      "defaultValue": "SubscribeAsync"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "metadata": {
+      "longName": "[format('{{0}}-{0}-{1}-{2}{{1}}', parameters('name'), parameters('env'), parameters('locationCode'))]",
+      "shortName": "[format('{{0}}{0}{1}{2}', parameters('name'), parameters('env'), parameters('locationCode'))]"
+    },
+    "logicApp": {
+      "name": "[format(variables('metadata').longName, 'logapp', '-subscription')]",
+      "location": "[parameters('location')]",
+      "timezone": "[parameters('logicAppTimezone')]",
+      "topicUri": "[parameters('logicAppSubscriptionTopicUri')]",
+      "subscriptionMode": "[parameters('logicAppSubscriptionMode')]"
+    },
+    "functionApp": {
+      "name": "[format(variables('metadata').longName, 'fncapp', '')]",
+      "functionResourceId": "[resourceId('Microsoft.Web/sites/functions', format(variables('metadata').longName, 'fncapp', ''), parameters('functionName'))]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Logic/workflows",
+      "apiVersion": "2019-05-01",
+      "name": "[variables('logicApp').name]",
+      "location": "[variables('logicApp').location]",
+      "properties": {
+        "state": "Enabled",
+        "parameters": {
+          "functionAppKey": {
+            "value": "[listKeys(variables('functionApp').functionResourceId, '2020-06-01').default]"
+          }
+        },
+        "definition": {
+          "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+          "contentVersion": "1.0.0.0",
+          "parameters": {
+            "timezone": {
+              "type": "string",
+              "defaultValue": "[variables('logicApp').timezone]"
+            },
+            "topicUri": {
+              "type": "string",
+              "defaultValue": "[variables('logicApp').topicUri]"
+            },
+            "subscriptionMode": {
+              "type": "string",
+              "defaultValue": "[variables('logicApp').subscriptionMode]"
+            },
+            "functionAppName": {
+              "type": "string",
+              "defaultValue": "[variables('functionApp').name]"
+            },
+            "functionAppKey": {
+              "type": "string",
+              "defaultValue": ""
+            }
+          },
+          "triggers": {
+            "Run_Daily_Scheduled_Request": {
+              "type": "Recurrence",
+              "recurrence": {
+                "frequency": "Day",
+                "interval": 1,
+                "schedule": {
+                  "hours": [
+                    "1"
+                  ],
+                  "minutes": [
+                    0
+                  ]
+                },
+                "timeZone": "@parameters('timezone')"
+              }
+            }
+          },
+          "actions": {
+            "Build_Request_Payload": {
+              "type": "Compose",
+              "runAfter": {},
+              "inputs": {
+                "topicUri": "@parameters('topicUri')",
+                "mode": "@parameters('subscriptionMode')"
+              }
+            },
+            "Send_Subscription_Request": {
+              "type": "Http",
+              "runAfter": {
+                "Build_Request_Payload": [
+                  "Succeeded"
+                ]
+              },
+              "inputs": {
+                "method": "POST",
+                "uri": "https://@{parameters('functionAppName')}.azurewebsites.net/api/subscribe",
+                "headers": {
+                  "x-functions-key": "@parameters('functionAppKey')"
+                },
+                "body": "@outputs('Build_Request_Payload')"
+              }
+            }
+          },
+          "outputs": {}
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "logicAppName": {
+      "type": "string",
+      "value": "[variables('logicApp').name]"
+    }
+  }
+}

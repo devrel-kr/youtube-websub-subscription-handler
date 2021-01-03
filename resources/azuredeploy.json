@@ -1,0 +1,287 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "name": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string",
+      "defaultValue": "dev",
+      "allowedValues": [
+        "dev",
+        "test",
+        "prod"
+      ]
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]"
+    },
+    "locationCode": {
+      "type": "string",
+      "defaultValue": "krc"
+    },
+    "storageAccountSku": {
+      "type": "string",
+      "defaultValue": "Standard_LRS"
+    },
+    "eventGridInputSchema": {
+      "type": "string",
+      "defaultValue": "CloudEventSchemaV1_0",
+      "allowedValues": [
+        "CloudEventSchemaV1_0",
+        "CustomEventSchema",
+        "EventGridSchema"
+      ]
+    },
+    "eventGridOutputSchema": {
+      "type": "string",
+      "defaultValue": "CloudEventSchemaV1_0",
+      "allowedValues": [
+        "CloudEventSchemaV1_0",
+        "CustomInputSchema",
+        "EventGridSchema"
+      ]
+    },
+    "functionAppWorkerRuntime": {
+      "type": "string",
+      "defaultValue": "dotnet"
+    },
+    "functionAppEnvironment": {
+      "type": "string",
+      "defaultValue": "Development",
+      "allowedValues": [
+        "Development",
+        "Staging",
+        "Production"
+      ]
+    },
+    "functionAppTimezone": {
+      "type": "string",
+      "defaultValue": "Korea Standard Time"
+    },
+    "websubSubscriptionUri": {
+      "type": "string",
+      "defaultValue": "https://pubsubhubbub.appspot.com/subscribe"
+    },
+    "websubCallbackEndpoint": {
+      "type": "string",
+      "defaultValue": "api/callback"
+    },
+    "youtubeApiKey": {
+      "type": "secureString"
+    },
+    "youtubeFetchParts": {
+      "type": "string",
+      "defaultValue": "snippet"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "metadata": {
+      "longName": "[format('{{0}}-{0}-{1}-{2}{{1}}', parameters('name'), parameters('env'), parameters('locationCode'))]",
+      "shortName": "[format('{{0}}{0}{1}{2}', parameters('name'), parameters('env'), parameters('locationCode'))]"
+    },
+    "storage": {
+      "name": "[format(variables('metadata').shortName, 'st')]",
+      "location": "[parameters('location')]",
+      "sku": "[parameters('storageAccountSku')]"
+    },
+    "eventgrid": {
+      "name": "[format(variables('metadata').longName, 'evtgrd', '-topic')]",
+      "location": "[parameters('location')]",
+      "inputSchema": "[parameters('eventGridInputSchema')]",
+      "outputSchema": "[parameters('eventGridOutputSchema')]"
+    },
+    "workspace": {
+      "name": "[format(variables('metadata').longName, 'wrkspc', '')]",
+      "location": "[parameters('location')]"
+    },
+    "appInsights": {
+      "name": "[format(variables('metadata').longName, 'appins', '')]",
+      "location": "[parameters('location')]"
+    },
+    "servicePlan": {
+      "name": "[format(variables('metadata').longName, 'csplan', '')]",
+      "location": "[parameters('location')]"
+    },
+    "functionApp": {
+      "name": "[format(variables('metadata').longName, 'fncapp', '')]",
+      "location": "[parameters('location')]",
+      "environment": "[parameters('functionAppEnvironment')]",
+      "runtime": "[parameters('functionAppWorkerRuntime')]",
+      "timezone": "[parameters('functionAppTimezone')]",
+      "youtubeApiKey": "[parameters('youtubeApiKey')]",
+      "youtubeFetchParts": "[parameters('youtubeFetchParts')]"
+    },
+    "websub": {
+      "subscriptionUri": "[parameters('websubSubscriptionUri')]",
+      "callbackEndpoint": "[parameters('websubCallbackEndpoint')]"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2019-06-01",
+      "name": "[variables('storage').name]",
+      "location": "[variables('storage').location]",
+      "kind": "StorageV2",
+      "sku": {
+        "name": "[variables('storage').sku]"
+      },
+      "properties": {
+        "supportsHttpsTrafficOnly": true
+      }
+    },
+    {
+      "type": "Microsoft.EventGrid/topics",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('eventgrid').name]",
+      "location": "[variables('eventgrid').location]",
+      "properties": {
+        "inputSchema": "[variables('eventgrid').inputSchema]",
+        "publicNetworkAccess": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2020-08-01",
+      "name": "[variables('workspace').name]",
+      "location": "[variables('workspace').location]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "workspaceCapping": {
+          "dailyQuotaGb": -1
+        },
+        "publicNetworkAccessForIngestion": "Enabled",
+        "publicNetworkAccessForQuery": "Enabled"
+      }
+    },
+    {
+      "type": "Microsoft.Insights/components",
+      "apiVersion": "2020-02-02-preview",
+      "name": "[variables('appInsights').name]",
+      "location": "[variables('appInsights').location]",
+      "kind": "web",
+      "properties": {
+        "Flow_Type": "Bluefield",
+        "Application_Type": "web",
+        "Request_Source": "rest",
+        "WorkspaceResourceId": "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspace').name)]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('workspace').name)]"
+      ]
+    },
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('servicePlan').name]",
+      "location": "[variables('servicePlan').location]",
+      "kind": "functionApp",
+      "sku": {
+        "name": "Y1",
+        "tier": "Dynamic"
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2020-06-01",
+      "name": "[variables('functionApp').name]",
+      "location": "[variables('functionApp').location]",
+      "kind": "functionapp",
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "appSettings": [
+            {
+              "name": "APPINSIGHTS_INSTRUMENTATIONKEY",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.InstrumentationKey]"
+            },
+            {
+              "name": "APPLICATIONINSIGHTS_CONNECTION_STRING",
+              "value": "[reference(resourceId('Microsoft.Insights/components', variables('appInsights').name), '2020-02-02-preview', 'Full').properties.connectionString]"
+            },
+            {
+              "name": "AZURE_FUNCTIONS_ENVIRONMENT",
+              "value": "[variables('functionApp').environment]"
+            },
+            {
+              "name": "AzureWebJobsStorage",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "FUNCTIONS_EXTENSION_VERSION",
+              "value": "~3"
+            },
+            {
+              "name": "FUNCTION_APP_EDIT_MODE",
+              "value": "readonly"
+            },
+            {
+              "name": "FUNCTIONS_WORKER_RUNTIME",
+              "value": "[variables('functionApp').runtime]"
+            },
+            {
+              "name": "WEBSITE_CONTENTAZUREFILECONNECTIONSTRING",
+              "value": "[format('DefaultEndpointsProtocol=https;AccountName={0};EndpointSuffix={1};AccountKey={2}', variables('storage').name, environment().suffixes.storage, listKeys(resourceId('Microsoft.Storage/storageAccounts', variables('storage').name), '2019-06-01').keys[0].value)]"
+            },
+            {
+              "name": "WEBSITE_CONTENTSHARE",
+              "value": "[variables('functionApp').name]"
+            },
+            {
+              "name": "WEBSITE_NODE_DEFAULT_VERSION",
+              "value": "~12"
+            },
+            {
+              "name": "WEBSITE_TIME_ZONE",
+              "value": "[variables('functionApp').timezone]"
+            },
+            {
+              "name": "WebSub__SubscriptionUri",
+              "value": "[variables('websub').subscriptionUri]"
+            },
+            {
+              "name": "WebSub__CallbackUri",
+              "value": "[format('https://{0}.azurewebsites.net/{1}', variables('functionApp').name, variables('websub').callbackEndpoint)]"
+            },
+            {
+              "name": "EventGrid__Topic__Endpoint",
+              "value": "[reference(resourceId('Microsoft.EventGrid/topics', variables('eventgrid').name), '2020-06-01', 'Full').properties.endpoint]"
+            },
+            {
+              "name": "EventGrid__Topic__AccessKey",
+              "value": "[listKeys(resourceId('Microsoft.EventGrid/topics', variables('eventgrid').name), '2020-06-01').key1]"
+            },
+            {
+              "name": "YouTube__ApiKey",
+              "value": "[variables('functionApp').youtubeApiKey]"
+            },
+            {
+              "name": "YouTube__FetchParts",
+              "value": "[variables('functionApp').youtubeFetchParts]"
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Insights/components', variables('appInsights').name)]",
+        "[resourceId('Microsoft.Web/serverfarms', variables('servicePlan').name)]",
+        "[resourceId('Microsoft.EventGrid/topics', variables('eventgrid').name)]",
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storage').name)]"
+      ]
+    }
+  ],
+  "outputs": {
+    "eventgridName": {
+      "type": "string",
+      "value": "[format(variables('metadata').longName, 'evtgrd', '')]"
+    }
+  }
+}
