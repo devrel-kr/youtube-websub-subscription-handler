@@ -22,17 +22,23 @@
       "type": "string",
       "defaultValue": "krc"
     },
-    "logicAppAcceptedEventType": {
-      "type": "string",
-      "defaultValue": "com.youtube.video.published"
-    },
-    "logicAppAcceptedTitleSegment": {
-      "type": "string",
-      "defaultValue": "애저듣보잡"
-    },
     "functionName": {
       "type": "string",
       "defaultValue": "FetchAsync"
+    },
+    "youTubeAcceptedTitleSegment": {
+      "type": "string"
+    },
+    "youTubeAcceptedEventType": {
+      "type": "string",
+      "defaultValue": "com.youtube.video.published"
+    },
+    "twitterProfileId": {
+      "type": "string"
+    },
+    "twitterEventType": {
+      "type": "string",
+      "defaultValue": "com.twitter.tweet.posted"
     }
   },
   "functions": [],
@@ -49,13 +55,23 @@
     },
     "logicApp": {
       "name": "[format(variables('metadata').longName, 'logapp', '-eventgrid-sub-handler-twitter')]",
-      "location": "[parameters('location')]",
-      "acceptedEventType": "[parameters('logicAppAcceptedEventType')]",
-      "acceptedTitleSegment": "[parameters('logicAppAcceptedTitleSegment')]"
+      "location": "[parameters('location')]"
     },
     "functionApp": {
       "name": "[format(variables('metadata').longName, 'fncapp', '')]",
       "functionResourceId": "[resourceId('Microsoft.Web/sites/functions', format(variables('metadata').longName, 'fncapp', ''), parameters('functionName'))]"
+    },
+    "eventGridTopic": {
+      "name": "[format(variables('metadata').longName, 'evtgrd', '-topic')]",
+      "resourceId": "[resourceId('Microsoft.EventGrid/topics', format(variables('metadata').longName, 'evtgrd', '-topic'))]"
+    },
+    "youtube": {
+      "acceptedEventType": "[parameters('youTubeAcceptedEventType')]",
+      "acceptedTitleSegment": "[parameters('youTubeAcceptedTitleSegment')]"
+    },
+    "twitter": {
+      "source": "[format('https://twitter.com/{0}', parameters('twitterProfileId'))]",
+      "type": "[parameters('twitterEventType')]"
     }
   },
   "resources": [
@@ -91,6 +107,12 @@
           },
           "functionAppKey": {
             "value": "[listKeys(variables('functionApp').functionResourceId, '2020-06-01').default]"
+          },
+          "eventGridTopicEndpoint": {
+            "value": "[reference(variables('eventGridTopic').resourceId, '2020-06-01', 'Full').properties.endpoint]"
+          },
+          "eventGridTopicKey": {
+            "value": "[listKeys(variables('eventGridTopic').resourceId, '2020-06-01').key1]"
           }
         },
         "definition": {
@@ -100,10 +122,6 @@
             "$connections": {
               "type": "object",
               "defaultValue": {}
-            },
-            "acceptedEventType": {
-              "type": "string",
-              "defaultValue": "[variables('logicApp').acceptedEventType]"
             },
             "functionAppName": {
               "type": "string",
@@ -115,7 +133,27 @@
             },
             "acceptedTitleSegment": {
               "type": "string",
-              "defaultValue": "[variables('logicApp').acceptedTitleSegment]"
+              "defaultValue": "[variables('youtube').acceptedTitleSegment]"
+            },
+            "acceptedEventType": {
+              "type": "string",
+              "defaultValue": "[variables('youtube').acceptedEventType]"
+            },
+            "eventGridTopicEndpoint": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "eventGridTopicKey": {
+              "type": "string",
+              "defaultValue": ""
+            },
+            "twitterSource": {
+              "type": "string",
+              "defaultValue": "[variables('twitter').source]"
+            },
+            "twitterType": {
+              "type": "string",
+              "defaultValue": "[variables('twitter').type]"
             }
           },
           "triggers": {
@@ -269,6 +307,30 @@
                 "path": "/posttweet",
                 "queries": {
                   "tweetText": "@{outputs('Build_Tweet_Post')}"
+                }
+              }
+            },
+            "Send_EventGrid_Tweet": {
+              "type": "Http",
+              "runAfter": {
+                "Post_Tweet": [
+                  "Succeeded"
+                ]
+              },
+              "inputs": {
+                "method": "POST",
+                "uri": "@parameters('eventGridTopicEndpoint')",
+                "headers": {
+                  "aeg-sas-key": "@parameters('eventGridTopicKey')"
+                },
+                "body": {
+                  "id": "@guid()",
+                  "specversion": "1.0",
+                  "source": "@parameters('twitterSource')",
+                  "type": "@parameters('twitterType')",
+                  "time": "@utcNow()",
+                  "datacontenttype": "application/cloudevents+json",
+                  "data": "@body('Post_Tweet')"
                 }
               }
             }

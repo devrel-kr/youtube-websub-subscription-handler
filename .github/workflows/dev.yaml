@@ -164,7 +164,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileUri=${{ secrets.TWITTER_PROFILE_ID }}
 
     - name: Download EventGrid name
       uses: actions/download-artifact@v2

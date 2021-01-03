@@ -17,12 +17,16 @@ param location string = resourceGroup().location
 // Resource location code
 param locationCode string = 'krc'
 
-// Logic Apps
-param logicAppAcceptedEventType string = 'com.youtube.video.published'
-param logicAppAcceptedTitleSegment string = '애저듣보잡'
-
 // Function App
 param functionName string = 'FetchAsync'
+
+// YouTube
+param youTubeAcceptedTitleSegment string
+param youTubeAcceptedEventType string = 'com.youtube.video.published'
+
+// Twitter
+param twitterProfileId string
+param twitterEventType string = 'com.twitter.tweet.posted'
 
 var metadata = {
     longName: '{0}-${name}-${env}-${locationCode}{1}'
@@ -51,13 +55,26 @@ resource apiconTwitter 'Microsoft.Web/connections@2016-06-01' = {
 var logicApp = {
     name: format(metadata.longName, 'logapp', '-eventgrid-sub-handler-twitter')
     location: location
-    acceptedEventType: logicAppAcceptedEventType
-    acceptedTitleSegment: logicAppAcceptedTitleSegment
 }
 
 var functionApp = {
     name: format(metadata.longName, 'fncapp', '')
     functionResourceId: resourceId('Microsoft.Web/sites/functions', format(metadata.longName, 'fncapp', ''), functionName)
+}
+
+var eventGridTopic = {
+    name: format(metadata.longName, 'evtgrd', '-topic')
+    resourceId: resourceId('Microsoft.EventGrid/topics', format(metadata.longName, 'evtgrd', '-topic'))
+}
+
+var youtube = {
+    acceptedEventType: youTubeAcceptedEventType
+    acceptedTitleSegment: youTubeAcceptedTitleSegment
+}
+
+var twitter = {
+    source: 'https://twitter.com/${twitterProfileId}'
+    type: twitterEventType
 }
 
 resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
@@ -78,6 +95,12 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
             functionAppKey: {
                 value: listKeys(functionApp.functionResourceId, '2020-06-01').default
             }
+            eventGridTopicEndpoint: {
+                value: reference(eventGridTopic.resourceId, '2020-06-01', 'Full').properties.endpoint
+            }
+            eventGridTopicKey: {
+                value: listKeys(eventGridTopic.resourceId, '2020-06-01').key1
+            }
         }
         definition: {
             '$schema': 'https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#'
@@ -86,10 +109,6 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                 '$connections': {
                     type: 'object'
                     defaultValue: {}
-                }
-                acceptedEventType: {
-                    type: 'string'
-                    defaultValue: logicApp.acceptedEventType
                 }
                 functionAppName: {
                     type: 'string'
@@ -101,7 +120,27 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                 }
                 acceptedTitleSegment: {
                     type: 'string'
-                    defaultValue: logicApp.acceptedTitleSegment
+                    defaultValue: youtube.acceptedTitleSegment
+                }
+                acceptedEventType: {
+                    type: 'string'
+                    defaultValue: youtube.acceptedEventType
+                }
+                eventGridTopicEndpoint: {
+                    type: 'string'
+                    defaultValue: ''
+                }
+                eventGridTopicKey: {
+                    type: 'string'
+                    defaultValue: ''
+                }
+                twitterSource: {
+                    type: 'string'
+                    defaultValue: twitter.source
+                }
+                twitterType: {
+                    type: 'string'
+                    defaultValue: twitter.type
                 }
             }
             triggers: {
@@ -255,6 +294,30 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                         path: '/posttweet'
                         queries: {
                             tweetText: '@{outputs(\'Build_Tweet_Post\')}'
+                        }
+                    }
+                }
+                Send_EventGrid_Tweet: {
+                    type: 'Http'
+                    runAfter: {
+                        Post_Tweet: [
+                            'Succeeded'
+                        ]
+                    }
+                    inputs: {
+                        method: 'POST'
+                        uri: '@parameters(\'eventGridTopicEndpoint\')'
+                        headers: {
+                            'aeg-sas-key': '@parameters(\'eventGridTopicKey\')'
+                        }
+                        body: {
+                            id: '@guid()'
+                            specversion: '1.0'
+                            source: '@parameters(\'twitterSource\')'
+                            type: '@parameters(\'twitterType\')'
+                            time: '@utcNow()'
+                            datacontenttype: 'application/cloudevents+json'
+                            data: '@body(\'Post_Tweet\')'
                         }
                     }
                 }
