@@ -147,7 +147,7 @@ jobs:
         files: '**/*.bicep'
 
     - name: Deploy LogicApp for scheduled subscription to WebSub
-      id: logappWebSub
+      id: websub
       uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
@@ -156,15 +156,25 @@ jobs:
         template: 'resources/logappdeploy.subscription.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
 
-    - name: Deploy LogicApp as EventGrid subscription handler
-      id: logappEventGridSub
+    - name: Deploy LogicApp as EventGrid subscription handler for Twitter
+      id: twitter
       uses: Azure/arm-deploy@v1
       with:
         subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
-        template: 'resources/logappdeploy.eventgridhandler-twitter.azpls.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileUri=${{ secrets.TWITTER_PROFILE_ID }}
+        template: 'resources/logappdeploy.eventgridhandler-twitter.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }}
+
+    - name: Deploy LogicApp as EventGrid subscription handler for ReTweet
+      id: retweeter
+      uses: Azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        deploymentName: 'ytwebsub'
+        template: 'resources/logappdeploy.eventgridhandler-retweeter.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWITTER_PROFILE_ID }}
 
     - name: Download EventGrid name
       uses: actions/download-artifact@v2
@@ -178,12 +188,17 @@ jobs:
         name=$(cat eventgrid_name_dev.txt)
         echo "::set-output name=name::$name"
 
-    - name: Provision EventGrid subscription
+    - name: Install Azure CLI extensions
       uses: azure/CLI@v1
       with:
         inlineScript: |
           az extension add -n eventgrid
           az extension add -n logic
+
+    - name: Provision EventGrid subscription for Twitter
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
           sub=$(az eventgrid event-subscription create \
             -n ${{ steps.eventgrid.outputs.name }}-sub \
             --source-resource-id $(az eventgrid topic show \
@@ -196,6 +211,26 @@ jobs:
               -m POST \
               -u "https://management.azure.com$(az logic workflow show \
                 -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
-                -n ${{ steps.logappEventGridSub.outputs.logicAppName }} \
+                -n ${{ steps.twitter.outputs.logicAppName }} \
+                --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
+              --query "value" -o tsv))
+
+    - name: Provision EventGrid subscription for ReTweet
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          sub=$(az eventgrid event-subscription create \
+            -n ${{ steps.eventgrid.outputs.name }}-sub \
+            --source-resource-id $(az eventgrid topic show \
+              -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+              -n ${{ steps.eventgrid.outputs.name }}-topic \
+              --query "id" -o tsv) \
+            --event-delivery-schema cloudeventschemav1_0 \
+            --endpoint-type webhook \
+            --endpoint $(az rest \
+              -m POST \
+              -u "https://management.azure.com$(az logic workflow show \
+                -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+                -n ${{ steps.retweeter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv))

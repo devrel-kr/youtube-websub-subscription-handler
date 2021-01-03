@@ -49,12 +49,12 @@
     },
     "twitterConnector": {
       "id": "[format('{0}/providers/Microsoft.Web/locations/{1}/managedApis/twitter', subscription().id, parameters('location'))]",
-      "connectionId": "[format('{0}/providers/Microsoft.Web/connections/{1}', resourceGroup().id, format(variables('metadata').longName, 'apicon', '-twitter-azpls'))]",
-      "connectionName": "[format(variables('metadata').longName, 'apicon', '-twitter-azpls')]",
+      "connectionId": "[format('{0}/providers/Microsoft.Web/connections/{1}', resourceGroup().id, format(format(variables('metadata').longName, 'apicon', '-twitter-{0}'), parameters('twitterProfileId')))]",
+      "connectionName": "[format(format(variables('metadata').longName, 'apicon', '-twitter-{0}'), parameters('twitterProfileId'))]",
       "location": "[parameters('location')]"
     },
     "logicApp": {
-      "name": "[format(variables('metadata').longName, 'logapp', '-eventgrid-sub-handler-twitter')]",
+      "name": "[format(format(variables('metadata').longName, 'logapp', '-eventgrid-sub-handler-twitter-{0}'), parameters('twitterProfileId'))]",
       "location": "[parameters('location')]"
     },
     "functionApp": {

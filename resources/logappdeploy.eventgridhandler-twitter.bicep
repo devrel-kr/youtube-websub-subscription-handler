@@ -35,8 +35,8 @@ var metadata = {
 
 var twitterConnector = {
     id: '${subscription().id}/providers/Microsoft.Web/locations/${location}/managedApis/twitter'
-    connectionId: '${resourceGroup().id}/providers/Microsoft.Web/connections/${format(metadata.longName, 'apicon', '-twitter-azpls')}'
-    connectionName: format(metadata.longName, 'apicon', '-twitter-azpls')
+    connectionId: '${resourceGroup().id}/providers/Microsoft.Web/connections/${format(format(metadata.longName, 'apicon', '-twitter-{0}'), twitterProfileId)}'
+    connectionName: format(format(metadata.longName, 'apicon', '-twitter-{0}'), twitterProfileId)
     location: location
 }
 
@@ -53,7 +53,7 @@ resource apiconTwitter 'Microsoft.Web/connections@2016-06-01' = {
 }
 
 var logicApp = {
-    name: format(metadata.longName, 'logapp', '-eventgrid-sub-handler-twitter')
+    name: format(format(metadata.longName, 'logapp', '-eventgrid-sub-handler-twitter-{0}'), twitterProfileId)
     location: location
 }
 
