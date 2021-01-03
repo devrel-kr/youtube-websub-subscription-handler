@@ -18,8 +18,8 @@ param location string = resourceGroup().location
 param locationCode string = 'krc'
 
 // Twitter
-param twitterProfileId string
 param twitterEventType string = 'com.twitter.tweet.posted'
+param twitterProfileId string
 param retweeterProfileId string
 
 var metadata = {

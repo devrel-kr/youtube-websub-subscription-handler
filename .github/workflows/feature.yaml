@@ -160,7 +160,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} youTubeAcceptedEventType=${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for ReTweet
       id: retweeter
@@ -170,7 +170,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-retweeter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWITTER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWITTER_PROFILE_ID }}
 
     - name: Download EventGrid name
       uses: actions/download-artifact@v2
@@ -209,7 +209,9 @@ jobs:
                 -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
                 -n ${{ steps.twitter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
-              --query "value" -o tsv))
+              --query "value" -o tsv) \
+            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }})
 
     - name: Provision EventGrid subscription for ReTweet
       uses: azure/CLI@v1
@@ -229,4 +231,6 @@ jobs:
                 -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
                 -n ${{ steps.retweeter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
-              --query "value" -o tsv))
+              --query "value" -o tsv) \
+            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} \
+            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }})

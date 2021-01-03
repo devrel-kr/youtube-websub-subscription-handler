@@ -297,10 +297,27 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                         }
                     }
                 }
+                Build_CloudEvents_Payload: {
+                    type: 'Compose'
+                    runAfter: {
+                        Post_Tweet: [
+                            'Succeeded'
+                        ]
+                    }
+                    inputs: {
+                        id: '@guid()'
+                        specversion: '1.0'
+                        source: '@parameters(\'twitterSource\')'
+                        type: '@parameters(\'twitterType\')'
+                        time: '@utcNow()'
+                        datacontenttype: 'application/cloudevents+json'
+                        data: '@body(\'Post_Tweet\')'
+                    }
+                }
                 Send_EventGrid_Tweet: {
                     type: 'Http'
                     runAfter: {
-                        Post_Tweet: [
+                        Build_CloudEvents_Payload: [
                             'Succeeded'
                         ]
                     }
@@ -309,16 +326,14 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                         uri: '@parameters(\'eventGridTopicEndpoint\')'
                         headers: {
                             'aeg-sas-key': '@parameters(\'eventGridTopicKey\')'
+                            'Content-Type': '@outputs(\'Build_CloudEvents_Payload\')?[\'datacontenttype\']'
+                            'ce-id': '@outputs(\'Build_CloudEvents_Payload\')?[\'id\']'
+                            'ce-specversion': '@outputs(\'Build_CloudEvents_Payload\')?[\'specversion\']'
+                            'ce-source': '@outputs(\'Build_CloudEvents_Payload\')?[\'source\']'
+                            'ce-type': '@outputs(\'Build_CloudEvents_Payload\')?[\'type\']'
+                            'ce-time': '@outputs(\'Build_CloudEvents_Payload\')?[\'time\']'
                         }
-                        body: {
-                            id: '@guid()'
-                            specversion: '1.0'
-                            source: '@parameters(\'twitterSource\')'
-                            type: '@parameters(\'twitterType\')'
-                            time: '@utcNow()'
-                            datacontenttype: 'application/cloudevents+json'
-                            data: '@body(\'Post_Tweet\')'
-                        }
+                        body: '@outputs(\'Build_CloudEvents_Payload\')'
                     }
                 }
             }
