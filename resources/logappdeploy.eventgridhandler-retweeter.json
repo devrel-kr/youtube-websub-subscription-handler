@@ -46,7 +46,7 @@
       "location": "[parameters('location')]"
     },
     "logicApp": {
-      "name": "[format(format(variables('metadata').longName, 'logapp', '-eventgrid-sub-handler-retwitter-{0}'), parameters('retweeterProfileId'))]",
+      "name": "[format(format(variables('metadata').longName, 'logapp', '-eventgrid-sub-handler-retweeter-{0}'), parameters('retweeterProfileId'))]",
       "location": "[parameters('location')]"
     },
     "twitter": {

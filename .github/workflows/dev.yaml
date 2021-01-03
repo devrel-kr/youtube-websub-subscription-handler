@@ -200,7 +200,7 @@ jobs:
       with:
         inlineScript: |
           sub=$(az eventgrid event-subscription create \
-            -n ${{ steps.eventgrid.outputs.name }}-sub \
+            -n ${{ steps.eventgrid.outputs.name }}-sub-twitter-${{ secrets.TWITTER_PROFILE_ID }} \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
               -n ${{ steps.eventgrid.outputs.name }}-topic \
@@ -220,7 +220,7 @@ jobs:
       with:
         inlineScript: |
           sub=$(az eventgrid event-subscription create \
-            -n ${{ steps.eventgrid.outputs.name }}-sub \
+            -n ${{ steps.eventgrid.outputs.name }}-sub-retweeter-${{ secrets.RETWITTER_PROFILE_ID}} \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
               -n ${{ steps.eventgrid.outputs.name }}-topic \

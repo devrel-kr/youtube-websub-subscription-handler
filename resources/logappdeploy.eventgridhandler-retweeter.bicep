@@ -47,7 +47,7 @@ resource apiconTwitter 'Microsoft.Web/connections@2016-06-01' = {
 }
 
 var logicApp = {
-    name: format(format(metadata.longName, 'logapp', '-eventgrid-sub-handler-retwitter-{0}'), retweeterProfileId)
+    name: format(format(metadata.longName, 'logapp', '-eventgrid-sub-handler-retweeter-{0}'), retweeterProfileId)
     location: location
 }
 
