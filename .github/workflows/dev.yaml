@@ -141,6 +141,22 @@ jobs:
               --query "default" \
               -o tsv))
 
+  logicapp_build_deploy_dev:
+    name: 'DEV: LogicApp Build & Deploy'
+    needs:
+    - functionapp_build_test_deploy_dev
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
+    - name: Login to Azure
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+
     - name: Run Bicep build
       uses: aliencube/bicep-build-actions@v0.1
       with:

@@ -10,8 +10,8 @@ env:
   FUNCTIONAPP_PATH: 'src/YouTubeWebSubSubscriptionHandler.FunctionApp'
 
 jobs:
-  arm_template_build_test:
-    name: 'WIP: ARM Templates Build & Test'
+  arm_template_build_test_deploy_dev:
+    name: 'WIP: ARM Templates Build, Test & Deploy'
 
     runs-on: ubuntu-latest
 
@@ -63,9 +63,9 @@ jobs:
         path: eventgrid_name_dev.txt
 
   functionapp_build_test_deploy_dev:
-    name: 'WIP: FunctionApp Build & Test'
+    name: 'WIP: FunctionApp Build, Test & Deploy'
     needs:
-    - arm_template_build_test
+    - arm_template_build_test_deploy_dev
 
     runs-on: ubuntu-latest
 
@@ -141,6 +141,22 @@ jobs:
               --function-name ${{ secrets.RESOURCE_FUNCTION_NAME_CALLBACK }} \
               --query "default" \
               -o tsv))
+
+  logicapp_build_deploy_dev:
+    name: 'WIP: LogicApp Build & Deploy'
+    needs:
+    - functionapp_build_test_deploy_dev
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout the repo
+      uses: actions/checkout@v2
+
+    - name: Login to Azure
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
 
     - name: Run Bicep build
       uses: aliencube/bicep-build-actions@v0.1
