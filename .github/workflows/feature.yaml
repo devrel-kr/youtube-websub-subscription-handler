@@ -189,17 +189,12 @@ jobs:
         name=$(cat eventgrid_name_dev.txt)
         echo "::set-output name=name::$name"
 
-    - name: Install Azure CLI extensions
+    - name: Provision EventGrid subscription for Twitter
       uses: azure/CLI@v1
       with:
         inlineScript: |
           az extension add -n eventgrid
           az extension add -n logic
-
-    - name: Provision EventGrid subscription for Twitter
-      uses: azure/CLI@v1
-      with:
-        inlineScript: |
           sub=$(az eventgrid event-subscription create \
             -n ${{ steps.eventgrid.outputs.name }}-sub-twitter-${{ secrets.TWITTER_PROFILE_ID }} \
             --source-resource-id $(az eventgrid topic show \
@@ -222,6 +217,8 @@ jobs:
       uses: azure/CLI@v1
       with:
         inlineScript: |
+          az extension add -n eventgrid
+          az extension add -n logic
           sub=$(az eventgrid event-subscription create \
             -n ${{ steps.eventgrid.outputs.name }}-sub-retweeter-${{ secrets.RETWITTER_PROFILE_ID}} \
             --source-resource-id $(az eventgrid topic show \
