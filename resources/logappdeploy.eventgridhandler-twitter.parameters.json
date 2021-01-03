@@ -4,6 +4,12 @@
   "parameters": {
     "name": {
       "value": "<RESOURCE_NAME>"
+    },
+    "youTubeAcceptedTitleSegment": {
+      "value": "<TITLE_SEGMENT>"
+    },
+    "twitterProfileUri": {
+      "value": "<TWITTER_PROFILE_ID>"
     }
   }
 }
