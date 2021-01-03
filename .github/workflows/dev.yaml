@@ -190,7 +190,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-retweeter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWITTER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWEETER_PROFILE_ID }}
 
     - name: Download EventGrid name
       uses: actions/download-artifact@v2
@@ -235,7 +235,7 @@ jobs:
           az extension add -n eventgrid
           az extension add -n logic
           sub=$(az eventgrid event-subscription create \
-            -n ${{ steps.eventgrid.outputs.name }}-sub-retweeter-${{ secrets.RETWITTER_PROFILE_ID}} \
+            -n ${{ steps.eventgrid.outputs.name }}-sub-retweeter-${{ secrets.RETWEETER_PROFILE_ID}} \
             --source-resource-id $(az eventgrid topic show \
               -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
               -n ${{ steps.eventgrid.outputs.name }}-topic \
