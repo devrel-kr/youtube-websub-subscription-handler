@@ -19,6 +19,11 @@ jobs:
     - name: Checkout the repo
       uses: actions/checkout@v2
 
+    - name: Login to Azure
+      uses: Azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS_DEV }}
+
     - name: Run Bicep build
       uses: aliencube/bicep-build-actions@v0.1
       with:
