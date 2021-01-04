@@ -26,12 +26,15 @@
       "type": "string",
       "defaultValue": "FetchAsync"
     },
-    "youTubeAcceptedTitleSegment": {
-      "type": "string"
-    },
-    "youTubeAcceptedEventType": {
+    "youTubeEventType": {
       "type": "string",
       "defaultValue": "com.youtube.video.published"
+    },
+    "youTubeChannelId": {
+      "type": "string"
+    },
+    "youTubeTitleSegment": {
+      "type": "string"
     },
     "twitterProfileId": {
       "type": "string"
@@ -66,8 +69,9 @@
       "resourceId": "[resourceId('Microsoft.EventGrid/topics', format(variables('metadata').longName, 'evtgrd', '-topic'))]"
     },
     "youtube": {
-      "acceptedEventType": "[parameters('youTubeAcceptedEventType')]",
-      "acceptedTitleSegment": "[parameters('youTubeAcceptedTitleSegment')]"
+      "source": "[format('https://www.youtube.com/xml/feeds/videos.xml?channel_id={0}', parameters('youTubeChannelId'))]",
+      "type": "[parameters('youTubeEventType')]",
+      "titleSegment": "[parameters('youTubeTitleSegment')]"
     },
     "twitter": {
       "source": "[format('https://twitter.com/{0}', parameters('twitterProfileId'))]",
@@ -131,13 +135,17 @@
               "type": "string",
               "defaultValue": ""
             },
-            "acceptedTitleSegment": {
+            "acceptedYouTubeSource": {
               "type": "string",
-              "defaultValue": "[variables('youtube').acceptedTitleSegment]"
+              "defaultValue": "[variables('youtube').source]"
             },
-            "acceptedEventType": {
+            "acceptedYouTubeType": {
               "type": "string",
-              "defaultValue": "[variables('youtube').acceptedEventType]"
+              "defaultValue": "[variables('youtube').type]"
+            },
+            "acceptedYouTubeTitleSegment": {
+              "type": "string",
+              "defaultValue": "[variables('youtube').titleSegment]"
             },
             "eventGridTopicEndpoint": {
               "type": "string",
@@ -201,8 +209,14 @@
                 "and": [
                   {
                     "equals": [
+                      "@triggerBody()?['source']",
+                      "@parameters('acceptedYouTubeSource')"
+                    ]
+                  },
+                  {
+                    "equals": [
                       "@triggerBody()?['type']",
-                      "@parameters('acceptedEventType')"
+                      "@parameters('acceptedYouTubeType')"
                     ]
                   }
                 ]
@@ -266,7 +280,7 @@
                   {
                     "equals": [
                       "@trim(last(outputs('Split_Title')))",
-                      "@parameters('acceptedTitleSegment')"
+                      "@parameters('acceptedYouTubeTitleSegment')"
                     ]
                   }
                 ]
@@ -275,7 +289,7 @@
                 "Build_Tweet_Post": {
                   "type": "Compose",
                   "runAfter": {},
-                  "inputs": "@{trim(first(outputs('Split_Description')))}\n\n@{body('Fetch_YouTube_Video_Details')?['link']}"
+                  "inputs": "@{trim(first(outputs('Split_Title')))}\n\n@{trim(first(outputs('Split_Description')))}\n\n@{body('Fetch_YouTube_Video_Details')?['link']}"
                 }
               },
               "else": {

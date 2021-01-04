@@ -26,20 +26,20 @@
       "type": "string",
       "defaultValue": "Korea Standard Time"
     },
-    "logicAppSubscriptionTopicUri": {
+    "functionName": {
+      "type": "string",
+      "defaultValue": "SubscribeAsync"
+    },
+    "youTubeChannelId": {
       "type": "string"
     },
-    "logicAppSubscriptionMode": {
+    "youTubeSubscriptionMode": {
       "type": "string",
       "defaultValue": "subscribe",
       "allowedValues": [
         "subscribe",
         "unsubscribe"
       ]
-    },
-    "functionName": {
-      "type": "string",
-      "defaultValue": "SubscribeAsync"
     }
   },
   "functions": [],
@@ -51,13 +51,15 @@
     "logicApp": {
       "name": "[format(variables('metadata').longName, 'logapp', '-subscription')]",
       "location": "[parameters('location')]",
-      "timezone": "[parameters('logicAppTimezone')]",
-      "topicUri": "[parameters('logicAppSubscriptionTopicUri')]",
-      "subscriptionMode": "[parameters('logicAppSubscriptionMode')]"
+      "timezone": "[parameters('logicAppTimezone')]"
     },
     "functionApp": {
       "name": "[format(variables('metadata').longName, 'fncapp', '')]",
       "functionResourceId": "[resourceId('Microsoft.Web/sites/functions', format(variables('metadata').longName, 'fncapp', ''), parameters('functionName'))]"
+    },
+    "youtube": {
+      "topicUri": "[format('https://www.youtube.com/xml/feeds/videos.xml?channel_id={0}', parameters('youTubeChannelId'))]",
+      "subscriptionMode": "[parameters('youTubeSubscriptionMode')]"
     }
   },
   "resources": [
@@ -83,11 +85,11 @@
             },
             "topicUri": {
               "type": "string",
-              "defaultValue": "[variables('logicApp').topicUri]"
+              "defaultValue": "[variables('youtube').topicUri]"
             },
             "subscriptionMode": {
               "type": "string",
-              "defaultValue": "[variables('logicApp').subscriptionMode]"
+              "defaultValue": "[variables('youtube').subscriptionMode]"
             },
             "functionAppName": {
               "type": "string",

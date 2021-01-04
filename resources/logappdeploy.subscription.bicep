@@ -19,17 +19,19 @@ param locationCode string = 'krc'
 
 // Logic Apps
 param logicAppTimezone string = 'Korea Standard Time'
-param logicAppSubscriptionTopicUri string
-param logicAppSubscriptionMode string {
+
+// Function App
+param functionName string = 'SubscribeAsync'
+
+// YouTube
+param youTubeChannelId string
+param youTubeSubscriptionMode string {
     allowed: [
         'subscribe'
         'unsubscribe'
     ]
     default: 'subscribe'
 }
-
-// Function App
-param functionName string = 'SubscribeAsync'
 
 var metadata = {
     longName: '{0}-${name}-${env}-${locationCode}{1}'
@@ -40,13 +42,16 @@ var logicApp = {
     name: format(metadata.longName, 'logapp', '-subscription')
     location: location
     timezone: logicAppTimezone
-    topicUri: logicAppSubscriptionTopicUri
-    subscriptionMode: logicAppSubscriptionMode
 }
 
 var functionApp = {
     name: format(metadata.longName, 'fncapp', '')
     functionResourceId: resourceId('Microsoft.Web/sites/functions', format(metadata.longName, 'fncapp', ''), functionName)
+}
+
+var youtube = {
+    topicUri: 'https://www.youtube.com/xml/feeds/videos.xml?channel_id=${youTubeChannelId}'
+    subscriptionMode: youTubeSubscriptionMode
 }
 
 resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
@@ -69,11 +74,11 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                 }
                 topicUri: {
                     type: 'string'
-                    defaultValue: logicApp.topicUri
+                    defaultValue: youtube.topicUri
                 }
                 subscriptionMode: {
                     type: 'string'
-                    defaultValue: logicApp.subscriptionMode
+                    defaultValue: youtube.subscriptionMode
                 }
                 functionAppName: {
                     type: 'string'

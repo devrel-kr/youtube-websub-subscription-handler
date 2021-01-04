@@ -5,8 +5,8 @@
     "name": {
       "value": "<RESOURCE_NAME>"
     },
-    "logicAppSubscriptionTopicUri": {
-      "value": "https://www.youtube.com/xml/feeds/videos.xml?channel_id=<CHANNEL_ID>"
+    "youTubeChannelId": {
+      "value": "<YOUTUBE_CHANNEL_ID>"
     }
   }
 }
