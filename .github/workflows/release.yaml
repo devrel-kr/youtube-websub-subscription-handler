@@ -224,7 +224,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.subscription.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_DEV }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for Twitter
       id: twitter
@@ -234,7 +234,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} youTubeAcceptedEventType=${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeEventType=${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubeTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} twitterEventType=${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for ReTweet
       id: retweeter
@@ -244,7 +244,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-retweeter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWEETER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWEETER_PROFILE_ID }}
 
     - name: Download EventGrid name
       uses: actions/download-artifact@v2
@@ -279,8 +279,8 @@ jobs:
                 -n ${{ steps.twitter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }})
+            --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }})
 
     - name: Provision EventGrid subscription for ReTweet
       uses: azure/CLI@v1
@@ -303,8 +303,8 @@ jobs:
                 -n ${{ steps.retweeter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }})
+            --advanced-filter type StringBeginsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }})
 
   functionapp_build_test_deploy_prod:
     name: 'PROD: FunctionApp Build, Test & Deploy'
@@ -417,7 +417,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.subscription.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} logicAppSubscriptionTopicUri=${{ secrets.YOUTUBE_TOPIC_URL_PROD }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_PROD }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for Twitter
       id: twitter
@@ -427,7 +427,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeAcceptedTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} youTubeAcceptedEventType=${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeEventType=${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_PROD }} youTubeTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} twitterEventType=${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for ReTweet
       id: retweeter
@@ -437,7 +437,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-retweeter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWEETER_PROFILE_ID }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} twitterEventType=${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} retweeterProfileId=${{ secrets.RETWEETER_PROFILE_ID }}
 
     - name: Download EventGrid name
       uses: actions/download-artifact@v2
@@ -472,8 +472,8 @@ jobs:
                 -n ${{ steps.twitter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }})
+            --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }})
 
     - name: Provision EventGrid subscription for ReTweet
       uses: azure/CLI@v1
@@ -496,5 +496,5 @@ jobs:
                 -n ${{ steps.retweeter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }})
+            --advanced-filter type StringBeginsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }})
