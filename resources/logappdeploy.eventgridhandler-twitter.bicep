@@ -274,7 +274,7 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                         Build_Tweet_Post: {
                             type: 'Compose'
                             runAfter: {}
-                            inputs: '@{trim(first(outputs(\'Split_Description\')))}\n\n@{body(\'Fetch_YouTube_Video_Details\')?[\'link\']}'
+                            inputs: '@trim(first(outputs(\'Split_Title\')))\n\n@{trim(first(outputs(\'Split_Description\')))}\n\n@{body(\'Fetch_YouTube_Video_Details\')?[\'link\']}'
                         }
                     }
                     else: {
