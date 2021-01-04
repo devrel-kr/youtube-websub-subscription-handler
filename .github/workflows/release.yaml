@@ -279,8 +279,8 @@ jobs:
                 -n ${{ steps.twitter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }})
+            --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }})
 
     - name: Provision EventGrid subscription for ReTweet
       uses: azure/CLI@v1
@@ -303,8 +303,8 @@ jobs:
                 -n ${{ steps.retweeter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }})
+            --advanced-filter type StringBeginsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }})
 
   functionapp_build_test_deploy_prod:
     name: 'PROD: FunctionApp Build, Test & Deploy'
@@ -472,8 +472,8 @@ jobs:
                 -n ${{ steps.twitter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_YOUTUBE }})
+            --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }})
 
     - name: Provision EventGrid subscription for ReTweet
       uses: azure/CLI@v1
@@ -496,5 +496,5 @@ jobs:
                 -n ${{ steps.retweeter.outputs.logicAppName }} \
                 --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
               --query "value" -o tsv) \
-            --advanced-filter type StringBeginsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }} \
-            --advanced-filter type StringEndsWith ${{ secrets.ACCEPTED_EVENT_TYPE_TWITTER }})
+            --advanced-filter type StringBeginsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }})
