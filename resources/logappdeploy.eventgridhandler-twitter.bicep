@@ -21,8 +21,9 @@ param locationCode string = 'krc'
 param functionName string = 'FetchAsync'
 
 // YouTube
-param youTubeAcceptedTitleSegment string
-param youTubeAcceptedEventType string = 'com.youtube.video.published'
+param youTubeEventType string = 'com.youtube.video.published'
+param youTubeChannelId string
+param youTubeTitleSegment string
 
 // Twitter
 param twitterProfileId string
@@ -68,8 +69,9 @@ var eventGridTopic = {
 }
 
 var youtube = {
-    acceptedEventType: youTubeAcceptedEventType
-    acceptedTitleSegment: youTubeAcceptedTitleSegment
+    source: 'https://www.youtube.com/xml/feeds/videos.xml?channel_id=${youTubeChannelId}'
+    type: youTubeEventType
+    titleSegment: youTubeTitleSegment
 }
 
 var twitter = {
@@ -118,13 +120,17 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                     type: 'string'
                     defaultValue: ''
                 }
-                acceptedTitleSegment: {
+                acceptedYouTubeSource: {
                     type: 'string'
-                    defaultValue: youtube.acceptedTitleSegment
+                    defaultValue: youtube.source
                 }
-                acceptedEventType: {
+                acceptedYouTubeType: {
                     type: 'string'
-                    defaultValue: youtube.acceptedEventType
+                    defaultValue: youtube.type
+                }
+                acceptedYouTubeTitleSegment: {
+                    type: 'string'
+                    defaultValue: youtube.titleSegment
                 }
                 eventGridTopicEndpoint: {
                     type: 'string'
@@ -188,8 +194,14 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                         and: [
                             {
                                 equals: [
+                                    '@triggerBody()?[\'source\']'
+                                    '@parameters(\'acceptedYouTubeSource\')'
+                                ]
+                            }
+                            {
+                                equals: [
                                     '@triggerBody()?[\'type\']'
-                                    '@parameters(\'acceptedEventType\')'
+                                    '@parameters(\'acceptedYouTubeType\')'
                                 ]
                             }
                         ]
@@ -253,7 +265,7 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                             {
                                 equals: [
                                     '@trim(last(outputs(\'Split_Title\')))'
-                                    '@parameters(\'acceptedTitleSegment\')'
+                                    '@parameters(\'acceptedYouTubeTitleSegment\')'
                                 ]
                             }
                         ]

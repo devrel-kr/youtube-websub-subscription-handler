@@ -22,12 +22,12 @@
       "type": "string",
       "defaultValue": "krc"
     },
-    "twitterProfileId": {
-      "type": "string"
-    },
     "twitterEventType": {
       "type": "string",
       "defaultValue": "com.twitter.tweet.posted"
+    },
+    "twitterProfileId": {
+      "type": "string"
     },
     "retweeterProfileId": {
       "type": "string"
