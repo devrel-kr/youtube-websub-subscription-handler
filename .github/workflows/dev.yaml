@@ -180,7 +180,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-twitter.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeEventType=${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubeTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} twitterEventType${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeEventType=${{ secrets.YOUTUBE_ACCEPTED_EVENT_TYPE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubeTitleSegment=${{ secrets.YOUTUBE_ACCEPTED_TITLE_SEGMENT }} twitterProfileId=${{ secrets.TWITTER_PROFILE_ID }} twitterEventType=${{ secrets.TWITTER_ACCEPTED_EVENT_TYPE }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for ReTweet
       id: retweeter
