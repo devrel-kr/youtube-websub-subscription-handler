@@ -191,7 +191,7 @@ jobs:
         resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
         deploymentName: 'ytwebsub'
         template: 'resources/logappdeploy.eventgridhandler-facebook.json'
-        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubeEventType=${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }} facebookPageId=${{ secrets.FACEBOOK_PAGE_ID }} iftttEventName=${{ secrets.IFTTT_EVENT_NAME }} iftttWebhookKey=${{ secrets.IFTTT_WEBHOOK_KEY }}
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubeEventType=${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }} youTubeTitleSegment=${{ secrets.YOUTUBE_CONVERTED_TITLE_SEGMENT }} facebookPageId=${{ secrets.FACEBOOK_PAGE_ID }} iftttEventName=${{ secrets.IFTTT_EVENT_NAME }} iftttWebhookKey=${{ secrets.IFTTT_WEBHOOK_KEY }}
 
     - name: Deploy LogicApp as EventGrid subscription handler for Twitter
       id: twitter
