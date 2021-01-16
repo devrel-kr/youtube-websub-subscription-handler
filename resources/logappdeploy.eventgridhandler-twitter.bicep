@@ -198,13 +198,13 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                         and: [
                             {
                                 equals: [
-                                    '@triggerBody()?[\'data\']?[\'source\']'
+                                    '@triggerBody()?[\'source\']'
                                     '@parameters(\'acceptedYouTubeSource\')'
                                 ]
                             }
                             {
                                 equals: [
-                                    '@triggerBody()?[\'data\']?[\'type\']'
+                                    '@triggerBody()?[\'type\']'
                                     '@parameters(\'acceptedYouTubeType\')'
                                 ]
                             }
