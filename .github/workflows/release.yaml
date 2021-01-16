@@ -236,6 +236,16 @@ jobs:
         template: 'resources/logappdeploy.eventgridhandler-relay.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubePublishedEventType=${{ secrets.YOUTUBE_PUBLISHED_EVENT_TYPE }} youTubeConvertedEventType=${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }}
 
+    - name: Deploy LogicApp as EventGrid subscription handler for LinkedIn
+      id: linkedin
+      uses: Azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_DEV }}
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_DEV }}
+        deploymentName: 'ytwebsub'
+        template: 'resources/logappdeploy.eventgridhandler-linkedin.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_DEV }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_DEV }} youTubeEventType=${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }} youTubeTitleSegment=${{ secrets.YOUTUBE_CONVERTED_TITLE_SEGMENT }} linkedInUsername=${{ secrets.LINKEDIN_USERNAME }}
+
     - name: Deploy LogicApp as EventGrid subscription handler for Facebook
       id: facebook
       uses: Azure/arm-deploy@v1
@@ -301,6 +311,30 @@ jobs:
               --query "value" -o tsv) \
             --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_PUBLISHED_EVENT_TYPE }} \
             --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_PUBLISHED_EVENT_TYPE }})
+
+    - name: Provision EventGrid subscription for LinkedIn
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az extension add -n eventgrid
+          az extension add -n logic
+          sub=$(az eventgrid event-subscription create \
+            -n ${{ steps.eventgrid.outputs.name }}-sub-linkedin-${{ secrets.LINKEDIN_USERNAME }} \
+            --source-resource-id $(az eventgrid topic show \
+              -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+              -n ${{ steps.eventgrid.outputs.name }}-topic \
+              --query "id" -o tsv) \
+            --event-delivery-schema cloudeventschemav1_0 \
+            --endpoint-type webhook \
+            --endpoint $(az rest \
+              -m POST \
+              -u "https://management.azure.com$(az logic workflow show \
+                -g ${{ secrets.RESOURCE_GROUP_NAME_DEV }} \
+                -n ${{ steps.linkedin.outputs.logicAppName }} \
+                --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
+              --query "value" -o tsv) \
+            --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }})
 
     - name: Provision EventGrid subscription for Facebook
       uses: azure/CLI@v1
@@ -497,6 +531,16 @@ jobs:
         template: 'resources/logappdeploy.eventgridhandler-relay.json'
         parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_PROD }} youTubePublishedEventType=${{ secrets.YOUTUBE_PUBLISHED_EVENT_TYPE }} youTubeConvertedEventType=${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }}
 
+    - name: Deploy LogicApp as EventGrid subscription handler for LinkedIn
+      id: linkedin
+      uses: Azure/arm-deploy@v1
+      with:
+        subscriptionId: ${{ secrets.SUBSCRIPTION_ID_PROD }}
+        resourceGroupName: ${{ secrets.RESOURCE_GROUP_NAME_PROD }}
+        deploymentName: 'ytwebsub'
+        template: 'resources/logappdeploy.eventgridhandler-linkedin.json'
+        parameters: name=${{ secrets.RESOURCE_NAME }} env=${{ secrets.RESOURCE_ENVIRONMENT_PROD }} locationCode=${{ secrets.RESOURCE_LOCATION_CODE }} youTubeChannelId=${{ secrets.YOUTUBE_CHANNEL_ID_PROD }} youTubeEventType=${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }} youTubeTitleSegment=${{ secrets.YOUTUBE_CONVERTED_TITLE_SEGMENT }} linkedInUsername=${{ secrets.LINKEDIN_USERNAME }}
+
     - name: Deploy LogicApp as EventGrid subscription handler for Facebook
       id: facebook
       uses: Azure/arm-deploy@v1
@@ -562,6 +606,30 @@ jobs:
               --query "value" -o tsv) \
             --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_PUBLISHED_EVENT_TYPE }} \
             --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_PUBLISHED_EVENT_TYPE }})
+
+    - name: Provision EventGrid subscription for LinkedIn
+      uses: azure/CLI@v1
+      with:
+        inlineScript: |
+          az extension add -n eventgrid
+          az extension add -n logic
+          sub=$(az eventgrid event-subscription create \
+            -n ${{ steps.eventgrid.outputs.name }}-sub-linkedin-${{ secrets.LINKEDIN_USERNAME }} \
+            --source-resource-id $(az eventgrid topic show \
+              -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
+              -n ${{ steps.eventgrid.outputs.name }}-topic \
+              --query "id" -o tsv) \
+            --event-delivery-schema cloudeventschemav1_0 \
+            --endpoint-type webhook \
+            --endpoint $(az rest \
+              -m POST \
+              -u "https://management.azure.com$(az logic workflow show \
+                -g ${{ secrets.RESOURCE_GROUP_NAME_PROD }} \
+                -n ${{ steps.linkedin.outputs.logicAppName }} \
+                --query "id" -o tsv)/triggers/manual/listCallbackUrl?api-version=2016-06-01" \
+              --query "value" -o tsv) \
+            --advanced-filter type StringBeginsWith ${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }} \
+            --advanced-filter type StringEndsWith ${{ secrets.YOUTUBE_CONVERTED_EVENT_TYPE }})
 
     - name: Provision EventGrid subscription for Facebook
       uses: azure/CLI@v1
