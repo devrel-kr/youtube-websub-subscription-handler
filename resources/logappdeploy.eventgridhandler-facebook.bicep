@@ -215,7 +215,7 @@ resource logapp 'Microsoft.Logic/workflows@2019-05-01' = {
                             runAfter: {}
                             inputs: {
                                 value1: '@{trim(first(outputs(\'Split_Title\')))} | @{trim(first(skip(outputs(\'Split_Title\'), 1)))}'
-                                value2: '@replace(triggerBody()?[\'data\']?[\'description\'], \'\n\', \'<br>&nbsp;<br>\')'
+                                value2: '@replace(triggerBody()?[\'data\']?[\'description\'], \'\n\', \'<br>&nbsp;\')'
                                 value3: '@triggerBody()?[\'data\']?[\'link\']'
                             }
                         }
